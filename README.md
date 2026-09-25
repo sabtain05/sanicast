@@ -102,7 +102,7 @@ In your schema, you can use the following string values to cast your data:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License
 
 ---
 
