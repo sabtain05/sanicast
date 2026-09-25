@@ -1,0 +1,32 @@
+{
+  "name": "sanicast",
+  "version": "1.0.0",
+  "description": "A bulletproof, zero-dependency data parser and caster. The ultimate solution for the developer's daily data tax.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "commonjs",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "parser",
+    "data-cleaning",
+    "sanitize",
+    "cast",
+    "zero-dependency",
+    "bulletproof",
+    "typescript"
+  ],
+  "author": "Sabtain Ali",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^26.6.2",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.2"
+  }
+}
