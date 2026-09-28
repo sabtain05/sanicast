@@ -1,6 +1,6 @@
 {
   "name": "sanicast",
-  "version": "1.0.0",
+  "version": "1.5.0",
   "description": "A bulletproof, zero-dependency data parser and caster. The ultimate solution for the developer's daily data tax.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

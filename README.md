@@ -14,6 +14,7 @@ Are you tired of handling inconsistent API responses, parsing chaotic date forma
 - **Zero Dependencies:** Extremely lightweight. Won't bloat your `node_modules`.
 - **Bulletproof:** Gracefully handles bad data. If a date is completely invalid, it returns `null` instead of crashing.
 - **Smart Type Coercion:** Automatically extracts numbers from strings (e.g., `"$1,200.50"` becomes `1200.5`).
+- **Array Power (New in v1.5.0!):** Seamlessly cast arrays of primitives and arrays of objects.
 - **Deeply Recursive:** Supports deeply nested object schemas out of the box.
 - **TypeScript First:** Written in TS with full type inference and support.
 
@@ -22,59 +23,60 @@ Are you tired of handling inconsistent API responses, parsing chaotic date forma
 You can install `sanicast` using your favorite package manager:
 
 ```bash
-# Using npm
 npm install sanicast
-
-# Using yarn
 yarn add sanicast
-
-# Using pnpm
 pnpm add sanicast
 
 ```
 
 ## Usage
 
-Here is how you can use `sanicast` to clean up chaotic, unpredictable data:
+Here is how you can use `sanicast` to clean up chaotic, unpredictable data, including arrays!
 
 ```typescript
 import { sanicast } from 'sanicast';
 
+// 1. Your messy, unpredictable data from an API
 const messyData = {
   user: {
-    name: '   Sabtain Ali   ',
-    isActive: 'yes',      
+    name: '   Sabtain Ali   ', 
+    isActive: 'yes',             
   },
-  transaction: {
-    amount: '$1,200.50',         
-    date: '2026/04/12 12:00:00',
-  },
-  metadata: {
-    age: '25',                   
-  }
+  transactions: ["$10.50", "20", "$30.99"],
+  devices: [
+    { name: "iPhone", isMobile: 1 },        
+    { name: "  MacBook  ", isMobile: "no" }
+  ],
+  createdAt: '2026/04/12 12:00:00'
 };
 
+// 2. Define how you want your data to look
 const schema = {
   user: {
     name: 'string',
     isActive: 'boolean',
   },
-  transaction: {
-    amount: 'number',
-    date: 'date',
-  },
-  metadata: {
-    age: 'number'
-  }
+  transactions: ['number'],
+  devices: [{
+    name: 'string',
+    isMobile: 'boolean'
+  }],
+  createdAt: 'date'
 };
+
+// 3. Clean and cast it!
 const cleanData = sanicast(messyData, schema);
 
 /*
 Output:
 {
   user: { name: 'Sabtain Ali', isActive: true },
-  transaction: { amount: 1200.5, date: '2026-04-12T07:00:00.000Z' },
-  metadata: { age: 25 }
+  transactions: [10.5, 20, 30.99],
+  devices: [
+    { name: 'iPhone', isMobile: true },
+    { name: 'MacBook', isMobile: false }
+  ],
+  createdAt: '2026-04-12T07:00:00.000Z'
 }
 */
 
@@ -90,6 +92,8 @@ In your schema, you can use the following string values to cast your data:
 | `'number'` | Strips currency signs, commas, spaces and parses to float. | `"$1,200.50"` | `1200.5` |
 | `'boolean'` | Checks for truthy strings (`'yes'`, `'1'`, `'true'`, `'on'`). | `'yes'`, `1` | `true` |
 | `'date'` | Parses timestamps and strings into ISO 8601 strings. | `'2026/04/12'` | `'2026-04-12T00:00:00.000Z'` |
+| `['type']` | Parses an array of values based on the provided type. | `["$10", 20]` | `[10, 20]` |
+| `[{...}]` | Parses an array of objects recursively. | `[{ active: 'yes' }]` | `[{ active: true }]` |
 
 *Note: If data is completely unparseable for `number` or `date`, `sanicast` will safely return `null`.*
 

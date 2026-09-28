@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-09-28
+
+### Added
+- **Array Support:** Added the ability to parse arrays of primitive types (e.g., `['number']`) and arrays of objects (e.g., `[{ name: 'string' }]`).
+- Prevents crashes by returning an empty array `[]` if the provided data is not an array but the schema expects one.
+
 ## [1.0.0] - 2026-09-25
 
 ### Added

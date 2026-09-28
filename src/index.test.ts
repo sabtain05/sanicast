@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { sanicast } from './index';
 
 describe('sanicast core functionality', () => {
-  it('should handle arrays correctly (v1.5.0 feature)', () => {
+  it('should handle arrays correctly', () => {
     const dirtyData = {
       prices: ["$10.50", "20", "$30.99"],
       users: [
