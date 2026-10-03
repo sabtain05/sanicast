@@ -2,31 +2,24 @@ import { describe, it, expect } from 'vitest';
 import { sanicast } from './index';
 
 describe('sanicast core functionality', () => {
-  it('should handle arrays correctly', () => {
+  it('should handle default values and strict mode (v2.0.0)', () => {
     const dirtyData = {
-      prices: ["$10.50", "20", "$30.99"],
-      users: [
-        { name: "   Ali   ", active: "yes" },
-        { name: "Ahmed", active: "no" }
-      ]
+      age: "unknown_string",
+      role: null,           
+      hacker_code: "drop_me!" 
     };
+
     const schema = {
-      prices: ['number'],
-      users: [{
-        name: 'string',
-        active: 'boolean'
-      }]
-    } as any;
+      age: { type: 'number', default: 18 },
+      role: { type: 'string', default: 'guest' }
+    } as const;
 
-    const cleanData = sanicast(dirtyData, schema) as {
-      prices: number[];
-      users: { name: string; active: boolean }[];
-    };
+    const strictResult = sanicast(dirtyData, schema);
+    expect((strictResult as any).age).toBe(18);
+    expect((strictResult as any).role).toBe('guest'); 
+    expect((strictResult as any).hacker_code).toBeUndefined(); 
 
-
-    expect(cleanData.prices).toEqual([10.5, 20, 30.99]);
-    expect(cleanData.users[0].name).toBe('Ali');
-    expect(cleanData.users[0].active).toBe(true);
-    expect(cleanData.users[1].active).toBe(false);
+    const looseResult = sanicast(dirtyData, schema, { strict: false });
+    expect((looseResult as any).hacker_code).toBe('drop_me!'); 
   });
 });

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-10-03
+
+### Added
+- **Default Values (Custom Fallbacks):** Added support for config objects in the schema (e.g., `{ type: 'number', default: 18 }`). If parsing fails, it now returns the specified default value instead of `null`.
+- **Strict Mode:** Added an `options` parameter. By default (`{ strict: true }`), `sanicast` now strips out any unknown keys that are not defined in the schema to ensure data security. You can pass `{ strict: false }` to retain extra keys.
+
 ## [1.5.0] - 2026-09-28
 
 ### Added

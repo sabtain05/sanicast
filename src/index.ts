@@ -1,24 +1,37 @@
-import { SanicastSchema, SanicastType, SanicastResult } from './types';
+import { SanicastSchema, SanicastType, SanicastResult, SanicastConfig, SanicastOptions } from './types';
 import { parseString, parseNumber, parseBoolean, parseDate } from './parsers';
 
 
-function parseSingleValue(value: any, typeExpected: SanicastType) {
-  switch (typeExpected) {
-    case 'string': return parseString(value);
-    case 'number': return parseNumber(value);
-    case 'boolean': return parseBoolean(value);
-    case 'date': return parseDate(value);
-    default: return value;
-  }
+function isConfig(val: any): val is SanicastConfig {
+  return val !== null && typeof val === 'object' && !Array.isArray(val) && 'type' in val && ['string', 'number', 'boolean', 'date'].includes(val.type);
 }
 
+function parseSingleValue(value: any, typeExpected: SanicastType, defaultValue?: any) {
+  let parsed = null;
+  switch (typeExpected) {
+    case 'string': parsed = parseString(value); break;
+    case 'number': parsed = parseNumber(value); break;
+    case 'boolean': parsed = parseBoolean(value); break;
+    case 'date': parsed = parseDate(value); break;
+    default: parsed = value;
+  }
+  
+  if ((parsed === null || parsed === undefined || parsed === '') && defaultValue !== undefined) {
+    return defaultValue;
+  }
+  return parsed;
+}
 
-export function sanicast<T>(data: any, schema: SanicastSchema): SanicastResult<T> {
+export function sanicast<T>(
+  data: any, 
+  schema: SanicastSchema, 
+  options: SanicastOptions = { strict: true }
+): SanicastResult<T> {
   if (!data || typeof data !== 'object') {
     return {} as SanicastResult<T>;
   }
 
-  const result: any = {};
+  const result: any = options.strict ? {} : { ...data };
 
   for (const key in schema) {
     const typeExpected = schema[key];
@@ -27,24 +40,29 @@ export function sanicast<T>(data: any, schema: SanicastSchema): SanicastResult<T
     if (typeof typeExpected === 'string') {
       result[key] = parseSingleValue(value, typeExpected as SanicastType);
     } 
+    else if (isConfig(typeExpected)) {
+      result[key] = parseSingleValue(value, typeExpected.type, typeExpected.default);
+    }
     else if (Array.isArray(typeExpected) && typeExpected.length > 0) {
-      const arrayType = typeExpected[0];
+      const arrayDef = typeExpected[0];
       
       if (Array.isArray(value)) {
         result[key] = value.map(item => {
-          if (typeof arrayType === 'string') {
-            return parseSingleValue(item, arrayType as SanicastType);
-          } else if (typeof arrayType === 'object') {
-            return sanicast(item, arrayType as SanicastSchema);
+          if (typeof arrayDef === 'string') {
+            return parseSingleValue(item, arrayDef as SanicastType);
+          } else if (isConfig(arrayDef)) {
+            return parseSingleValue(item, arrayDef.type, arrayDef.default);
+          } else if (typeof arrayDef === 'object') {
+            return sanicast(item, arrayDef as SanicastSchema, options);
           }
           return item;
         });
       } else {
-        result[key] = [];
+        result[key] = []; 
       }
     }
     else if (typeof typeExpected === 'object' && typeExpected !== null && !Array.isArray(typeExpected)) {
-      result[key] = sanicast(value, typeExpected as SanicastSchema);
+      result[key] = sanicast(value, typeExpected as SanicastSchema, options);
     }
   }
 
